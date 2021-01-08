@@ -1,0 +1,524 @@
+[
+    {
+        "id": "729bb0ac.7a14a",
+        "type": "subflow",
+        "name": "Flow to GitHub",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 80,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "408be944.f061c8"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [
+            {
+                "name": "owner",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "label": {
+                        "en-US": "Owner"
+                    }
+                }
+            },
+            {
+                "name": "repo",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "label": {
+                        "en-US": "Repo"
+                    }
+                }
+            },
+            {
+                "name": "path_abs_file",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "label": {
+                        "en-US": "Path abs File"
+                    }
+                }
+            },
+            {
+                "name": "flow_name",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "label": {
+                        "en-US": "Flow Name"
+                    }
+                }
+            },
+            {
+                "name": "commit",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "label": {
+                        "en-US": "Commit"
+                    }
+                }
+            }
+        ],
+        "color": "#DDAA99"
+    },
+    {
+        "id": "ab50264c.6e1c08",
+        "type": "http request",
+        "z": "729bb0ac.7a14a",
+        "name": "get list Flows",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://{{user_nr}}:{{password_nr}}@localhost:1880/flows",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 310,
+        "y": 180,
+        "wires": [
+            [
+                "1ffc7c81.a29383"
+            ]
+        ]
+    },
+    {
+        "id": "1ffc7c81.a29383",
+        "type": "function",
+        "z": "729bb0ac.7a14a",
+        "name": "search ID of Flow",
+        "func": "msg.id_flow = 'global' ;\n\nmsg.payload.forEach( (f) => {\n    // label => Flow else msg.id_flow = global (subflow)\n    if(f.label===msg.flow_name ){\n        msg.id_flow = f.id;\n    }\n});\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 510,
+        "y": 180,
+        "wires": [
+            [
+                "9785d63a.081b98"
+            ]
+        ]
+    },
+    {
+        "id": "9785d63a.081b98",
+        "type": "switch",
+        "z": "729bb0ac.7a14a",
+        "name": "If id_flow exist",
+        "property": "id_flow",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "null"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 720,
+        "y": 180,
+        "wires": [
+            [
+                "80f932e1.fcfae"
+            ],
+            [
+                "45f4b435.53a2cc"
+            ]
+        ]
+    },
+    {
+        "id": "512fcbd.083b934",
+        "type": "http request",
+        "z": "729bb0ac.7a14a",
+        "name": "GitHub : Commit Flow",
+        "method": "PUT",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.github.com/repos/{{flow_owner}}/{{flow_repo}}/contents/{{flow_file}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 840,
+        "y": 680,
+        "wires": [
+            [
+                "9286263c.e17ff8"
+            ]
+        ]
+    },
+    {
+        "id": "408be944.f061c8",
+        "type": "change",
+        "z": "729bb0ac.7a14a",
+        "name": "Param into msg",
+        "rules": [
+            {
+                "t": "set",
+                "p": "flow_name",
+                "pt": "msg",
+                "to": "flow_name",
+                "tot": "env"
+            },
+            {
+                "t": "set",
+                "p": "flow_file",
+                "pt": "msg",
+                "to": "path_abs_file",
+                "tot": "env"
+            },
+            {
+                "t": "set",
+                "p": "flow_repo",
+                "pt": "msg",
+                "to": "repo",
+                "tot": "env"
+            },
+            {
+                "t": "set",
+                "p": "flow_owner",
+                "pt": "msg",
+                "to": "owner",
+                "tot": "env"
+            },
+            {
+                "t": "set",
+                "p": "commit",
+                "pt": "msg",
+                "to": "commit",
+                "tot": "env"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 240,
+        "y": 80,
+        "wires": [
+            [
+                "ab50264c.6e1c08"
+            ]
+        ]
+    },
+    {
+        "id": "80f932e1.fcfae",
+        "type": "change",
+        "z": "729bb0ac.7a14a",
+        "name": "Error",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "\"Flow \" & $.flow_name & \" not exist !\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1230,
+        "y": 200,
+        "wires": [
+            [
+                "863ba6f6.99cc38"
+            ]
+        ]
+    },
+    {
+        "id": "294ec987.ad4976",
+        "type": "http request",
+        "z": "729bb0ac.7a14a",
+        "name": "GitHub : Get sha of low_file",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.github.com/repos/{{flow_owner}}/{{flow_repo}}/contents/{{flow_file}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 760,
+        "y": 560,
+        "wires": [
+            [
+                "ab48eded.d9429"
+            ]
+        ]
+    },
+    {
+        "id": "b41d3f05.c51da",
+        "type": "change",
+        "z": "729bb0ac.7a14a",
+        "name": "Param http",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\t\"accept\":\"application/vnd.github.v3+json\",\t\"message\":\"Update\",\t\"content\":$base64encode($.payload),\t\"encoding\":\"utf-8\"\t}",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "headers",
+                "pt": "msg",
+                "to": "{\"User-Agent\":\"\",\"Authorization\":\"token \"&$.token }",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 490,
+        "y": 560,
+        "wires": [
+            [
+                "294ec987.ad4976"
+            ]
+        ]
+    },
+    {
+        "id": "ab48eded.d9429",
+        "type": "change",
+        "z": "729bb0ac.7a14a",
+        "name": "Set flow_sha",
+        "rules": [
+            {
+                "t": "set",
+                "p": "flow_sha",
+                "pt": "msg",
+                "to": "payload.sha",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 990,
+        "y": 560,
+        "wires": [
+            [
+                "4b843044.03641"
+            ]
+        ]
+    },
+    {
+        "id": "4076ad5f.e2bef4",
+        "type": "http request",
+        "z": "729bb0ac.7a14a",
+        "name": "get Flow of Id",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://{{user_nr}}:{{password_nr}}@localhost:1880/flow/{{id_flow}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 480,
+        "y": 460,
+        "wires": [
+            [
+                "caa3060f.9736d8"
+            ]
+        ]
+    },
+    {
+        "id": "caa3060f.9736d8",
+        "type": "change",
+        "z": "729bb0ac.7a14a",
+        "name": "Set flow_content base64",
+        "rules": [
+            {
+                "t": "set",
+                "p": "flow_content",
+                "pt": "msg",
+                "to": "$base64encode($.payload)\t",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 790,
+        "y": 460,
+        "wires": [
+            [
+                "b41d3f05.c51da"
+            ]
+        ]
+    },
+    {
+        "id": "4b843044.03641",
+        "type": "function",
+        "z": "729bb0ac.7a14a",
+        "name": "Param http GitHub Commit",
+        "func": "msg.headers = {\n    \"User-Agent\":\"\",\n    \"Authorization\":\"token \" + msg.token\n};\n\nmsg.payload = {\n    \"accept\":\"application/vnd.github.v3+json\",\n    \"message\":msg.commit,\n    \"content\": msg.flow_content,\n    \"encoding\":\"utf-8\"\n} ;\n\nmsg.method = 'PUT' ; \n\nif(msg.flow_sha != undefined ){\n    msg.payload.sha = msg.flow_sha ;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 540,
+        "y": 680,
+        "wires": [
+            [
+                "512fcbd.083b934"
+            ]
+        ]
+    },
+    {
+        "id": "863ba6f6.99cc38",
+        "type": "debug",
+        "z": "729bb0ac.7a14a",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1550,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "45f4b435.53a2cc",
+        "type": "switch",
+        "z": "729bb0ac.7a14a",
+        "name": "If id_flow == global => Subflow",
+        "property": "id_flow",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "global",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 170,
+        "y": 340,
+        "wires": [
+            [
+                "a6c31417.226148"
+            ],
+            [
+                "4076ad5f.e2bef4"
+            ]
+        ]
+    },
+    {
+        "id": "a6c31417.226148",
+        "type": "http request",
+        "z": "729bb0ac.7a14a",
+        "name": "get Flow of global",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://{{user_nr}}:{{password_nr}}@localhost:1880/flow/{{id_flow}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 490,
+        "y": 280,
+        "wires": [
+            [
+                "ca0f65e5.0343a8"
+            ]
+        ]
+    },
+    {
+        "id": "ca0f65e5.0343a8",
+        "type": "function",
+        "z": "729bb0ac.7a14a",
+        "name": "search content of SubFlow",
+        "func": "msg.payload.subflows.forEach( (f) => {\n    // name => SubFlow\n    if(f.name===msg.flow_name ){\n        msg.subflow = f;\n    }\n});\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 760,
+        "y": 280,
+        "wires": [
+            [
+                "480c33ac.05a9ac"
+            ]
+        ]
+    },
+    {
+        "id": "480c33ac.05a9ac",
+        "type": "change",
+        "z": "729bb0ac.7a14a",
+        "name": "Convert payload string",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$string($.subflow)\t",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 800,
+        "y": 360,
+        "wires": [
+            [
+                "caa3060f.9736d8"
+            ]
+        ]
+    },
+    {
+        "id": "9286263c.e17ff8",
+        "type": "debug",
+        "z": "729bb0ac.7a14a",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1090,
+        "y": 680,
+        "wires": []
+    }
+]
