@@ -19,6 +19,16 @@
         "out": [],
         "env": [
             {
+                "name": "url_nr",
+                "type": "str",
+                "value": "http://localhost:1880",
+                "ui": {
+                    "label": {
+                        "en-US": "Url Node red"
+                    }
+                }
+            },
+            {
                 "name": "owner",
                 "type": "str",
                 "value": "",
@@ -79,7 +89,7 @@
         "method": "GET",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "http://{{user_nr}}:{{password_nr}}@localhost:1880/flows",
+        "url": "{{url_nr}}/flows",
         "tls": "",
         "persist": false,
         "proxy": "",
@@ -168,6 +178,13 @@
         "rules": [
             {
                 "t": "set",
+                "p": "url_nr",
+                "pt": "msg",
+                "to": "url_nr",
+                "tot": "env"
+            },
+            {
+                "t": "set",
                 "p": "flow_name",
                 "pt": "msg",
                 "to": "flow_name",
@@ -200,6 +217,13 @@
                 "pt": "msg",
                 "to": "commit",
                 "tot": "env"
+            },
+            {
+                "t": "set",
+                "p": "auth",
+                "pt": "msg",
+                "to": "$base64encode($.user_nr&':'&$.password_nr)\t",
+                "tot": "jsonata"
             }
         ],
         "action": "",
@@ -211,7 +235,7 @@
         "y": 80,
         "wires": [
             [
-                "ab50264c.6e1c08"
+                "e09cd6c4.157a98"
             ]
         ]
     },
@@ -332,7 +356,7 @@
         "method": "GET",
         "ret": "txt",
         "paytoqs": "ignore",
-        "url": "http://{{user_nr}}:{{password_nr}}@localhost:1880/flow/{{id_flow}}",
+        "url": "{{url_nr}}/flow/{{id_flow}}",
         "tls": "",
         "persist": false,
         "proxy": "",
@@ -431,10 +455,10 @@
         "y": 340,
         "wires": [
             [
-                "a6c31417.226148"
+                "6e96dea6.f36fd"
             ],
             [
-                "4076ad5f.e2bef4"
+                "ffc2ccfa.d0bcf"
             ]
         ]
     },
@@ -446,12 +470,12 @@
         "method": "GET",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "http://{{user_nr}}:{{password_nr}}@localhost:1880/flow/{{id_flow}}",
+        "url": "{{url_nr}}/flow/{{id_flow}}",
         "tls": "",
         "persist": false,
         "proxy": "",
         "authType": "",
-        "x": 490,
+        "x": 650,
         "y": 280,
         "wires": [
             [
@@ -469,7 +493,7 @@
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "x": 760,
+        "x": 920,
         "y": 280,
         "wires": [
             [
@@ -520,5 +544,86 @@
         "x": 1090,
         "y": 680,
         "wires": []
+    },
+    {
+        "id": "e09cd6c4.157a98",
+        "type": "change",
+        "z": "729bb0ac.7a14a",
+        "name": "Auth basic Headers",
+        "rules": [
+            {
+                "t": "set",
+                "p": "headers",
+                "pt": "msg",
+                "to": "{\"Authorization\": \"Basic \" & $.auth}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 470,
+        "y": 80,
+        "wires": [
+            [
+                "ab50264c.6e1c08"
+            ]
+        ]
+    },
+    {
+        "id": "6e96dea6.f36fd",
+        "type": "change",
+        "z": "729bb0ac.7a14a",
+        "name": "Auth basic Headers",
+        "rules": [
+            {
+                "t": "set",
+                "p": "headers",
+                "pt": "msg",
+                "to": "{\"Authorization\": \"Basic \" & $.auth}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 450,
+        "y": 280,
+        "wires": [
+            [
+                "a6c31417.226148"
+            ]
+        ]
+    },
+    {
+        "id": "ffc2ccfa.d0bcf",
+        "type": "change",
+        "z": "729bb0ac.7a14a",
+        "name": "Auth basic Headers",
+        "rules": [
+            {
+                "t": "set",
+                "p": "headers",
+                "pt": "msg",
+                "to": "{\"Authorization\": \"Basic \" & $.auth}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 390,
+        "y": 400,
+        "wires": [
+            [
+                "4076ad5f.e2bef4"
+            ]
+        ]
     }
 ]
