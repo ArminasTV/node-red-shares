@@ -22,6 +22,16 @@
                 "name": "Url Git",
                 "type": "str",
                 "value": ""
+            },
+            {
+                "name": "url_nr",
+                "type": "str",
+                "value": "localhost:1880",
+                "ui": {
+                    "label": {
+                        "en-US": "Url Node-red"
+                    }
+                }
             }
         ],
         "color": "#DDAA99"
@@ -31,13 +41,13 @@
         "type": "function",
         "z": "3f067bb0.be5694",
         "name": "Param http",
-        "func": "msg.method = 'POST' ; // add flow if flow_id not exist\nmsg.url = 'http://'+msg.user_nr+':'+msg.password_nr+'@localhost:1880/flow' ;\n\nif(msg.type==='flow' ){\n    if(msg.flow_id != undefined ){\n        msg.method = 'PUT' ;  // update flow  \n        msg.url += '/'+ msg.flow_id ;\n    }\n}else{// update subflow  \n    msg.method = 'PUT' ;  // update flow  \n    msg.url += '/global' ;\n}\n\nmsg.payload = msg.content;\n\nreturn msg;",
+        "func": "msg.method = 'POST' ; // add flow if flow_id not exist\nmsg.headers = {\"Authorization\": \"Basic \" + msg.auth} ;\nmsg.url = 'http://'+msg.url_nr+'/flow' ;\n\nif(msg.type==='flow' ){\n    if(msg.flow_id != undefined ){\n        msg.method = 'PUT' ;  // update flow  \n        msg.url += '/'+ msg.flow_id ;\n    }\n}else{// update subflow  \n    msg.method = 'PUT' ;  // update flow  \n    msg.url += '/global' ;\n}\n\nmsg.payload = msg.content;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "x": 650,
-        "y": 280,
+        "x": 770,
+        "y": 340,
         "wires": [
             [
                 "551a1f75.346cd"
@@ -56,6 +66,13 @@
                 "pt": "msg",
                 "to": "Url Git",
                 "tot": "env"
+            },
+            {
+                "t": "set",
+                "p": "url_nr",
+                "pt": "msg",
+                "to": "url_nr",
+                "tot": "env"
             }
         ],
         "action": "",
@@ -63,11 +80,11 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 260,
+        "x": 240,
         "y": 140,
         "wires": [
             [
-                "9d44e71c.3e4198"
+                "b288ef9f.a6179"
             ]
         ]
     },
@@ -84,8 +101,8 @@
         "persist": false,
         "proxy": "",
         "authType": "",
-        "x": 190,
-        "y": 280,
+        "x": 310,
+        "y": 340,
         "wires": [
             [
                 "f5eb4de7.ebba6"
@@ -102,8 +119,8 @@
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "x": 410,
-        "y": 280,
+        "x": 530,
+        "y": 340,
         "wires": [
             [
                 "348c014c.f37e1e"
@@ -123,8 +140,8 @@
         "persist": false,
         "proxy": "",
         "authType": "",
-        "x": 880,
-        "y": 280,
+        "x": 1000,
+        "y": 340,
         "wires": [
             [
                 "c6626e56.a1fe"
@@ -144,8 +161,8 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1110,
-        "y": 280,
+        "x": 1230,
+        "y": 340,
         "wires": []
     },
     {
@@ -161,8 +178,8 @@
         "persist": false,
         "proxy": "",
         "authType": "",
-        "x": 620,
-        "y": 140,
+        "x": 740,
+        "y": 200,
         "wires": [
             [
                 "f18ec939.381c68"
@@ -188,8 +205,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 430,
-        "y": 140,
+        "x": 550,
+        "y": 200,
         "wires": [
             [
                 "1dd78489.33628b"
@@ -201,16 +218,43 @@
         "type": "function",
         "z": "3f067bb0.be5694",
         "name": "params",
-        "func": "msg.content = msg.payload;\nmsg.flow_name = msg.content.label ; \n\nmsg.url = 'http://'+msg.user_nr+':'+msg.password_nr+'@localhost:1880/flows' ;\nmsg.type= 'flow';\nif( msg.content.type === 'subflow' ){\n    msg.type='subflow';\n    msg.flow_name = msg.content.name ; \n    msg.url = 'http://'+msg.user_nr+':'+msg.password_nr+'@localhost:1880/flow/global' ;\n}\n\n\nreturn msg;",
+        "func": "msg.content = msg.payload;\nmsg.flow_name = msg.content.label ; \n\nmsg.url = 'http://'+msg.url_nr+'/flows' ;\nmsg.headers = {\"Authorization\": \"Basic \" + msg.auth} ;\nmsg.type= 'flow';\nif( msg.content.type === 'subflow' ){\n    msg.type='subflow';\n    msg.flow_name = msg.content.name ; \n    msg.url = 'http://'+msg.url_nr+'/flow/global' ;\n}\n\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "x": 820,
-        "y": 140,
+        "x": 940,
+        "y": 200,
         "wires": [
             [
                 "ec64fef6.600af"
+            ]
+        ]
+    },
+    {
+        "id": "b288ef9f.a6179",
+        "type": "change",
+        "z": "3f067bb0.be5694",
+        "name": "Auth base 64",
+        "rules": [
+            {
+                "t": "set",
+                "p": "auth",
+                "pt": "msg",
+                "to": "$base64encode($.user_nr&':'&$.password_nr)\t",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 350,
+        "y": 200,
+        "wires": [
+            [
+                "9d44e71c.3e4198"
             ]
         ]
     }
