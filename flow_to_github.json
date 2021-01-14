@@ -21,7 +21,7 @@
             {
                 "name": "url_nr",
                 "type": "str",
-                "value": "http://localhost:1880",
+                "value": "localhost:1880",
                 "ui": {
                     "label": {
                         "en-US": "Url Node red"
